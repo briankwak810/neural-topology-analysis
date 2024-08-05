@@ -1,18 +1,18 @@
 ##### Analysis Mode Parameters #####
 
-experimental_analysis: True
 discard_low_fire: 0
-use_downsampling: True
+use_downsampling: False
+usespikes: False
 
 #####          Neural data        #####
 ##### starts from under './data/' #####
 
-ethovision_files: 'mouse1 - base and opto/Raw data-Square50_Base1_PV5_6-Trial     1.xlsx'
+ethovision_files: 'mouse1 - base and opto/Raw data-Square50_Opto1_PV5_6-Trial     1.xlsx'
 inscopix_files:
-  spk: 'mouse1 - base and opto/Square50_B1O1B2O2_PV5_6_Base1_deconv.xlsx'
-  trc: 'mouse1 - base and opto/Square50_B1O1B2O2_PV5_6_Base1.xlsx'
+  spk: 'mouse1 - base and opto/Square50_B1O1B2O2_PV5_6_Opto1_deconv.xlsx'
+  trc: 'mouse1 - base and opto/Square50_B1O1B2O2_PV5_6_Opto1.xlsx'
 mouse_num: 1
-experiment_name: "PV_1_Base"
+experiment_name: "PV_1_Opto"
 cell_index: [0, 3, 5, 6, 10, 13, 14, 17, 19, 20, 21, 23, 25, 38, 40, 43, 44, 47, 48, 54, 63, 64, 66, 71, 72] #None for all
 
 ##### CEBRA paramters #####

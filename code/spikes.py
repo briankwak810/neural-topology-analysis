@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import numpy as np
 from scipy.ndimage import gaussian_filter
-from utils import rat_trajectory
+from utils import rat_trajectory, calculate_border_score
 from matplotlib.colors import Normalize
 
-cell_num = 1 # to visualize
+cell_num = 12 # to visualize
 cell_name = f' C{cell_num:02}'
 
 with open('../config.yaml', 'r') as config_file:
@@ -69,7 +69,10 @@ for pos in [x_pos, y_pos, head_dir, velocity]:
 threshold = 2
 moving_idx = [i for i, x in enumerate(velocity) if x > threshold]
 
-for cell_name in spike_times.keys(): ###########
+border_indx = []
+border_name = []
+
+for i, cell_name in enumerate(spike_times.keys()): ###########
     fire_xpos = []
     fire_ypos = []
     fire_hd = []
@@ -119,22 +122,36 @@ for cell_name in spike_times.keys(): ###########
     firing_map_smooth = gaussian_filter(firing_map, sigma)
     firing_map_smooth = np.ma.array(firing_map_smooth.T)
 
-    im = ax2.imshow(firing_map_smooth, origin='lower', extent=[x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]],
-                    cmap='jet', interpolation='bilinear') # norm=LogNorm(vmin=1)
+    bin_size = (x_edges[1] - x_edges[0])  # Assuming square bins
+    border_score = calculate_border_score(firing_map_smooth, bin_size)
 
-    ax2.plot(x_pos, y_pos, color='gray', alpha=0.5, linewidth=0.5)
-    # ax2.scatter(fire_xpos, fire_ypos, color='red', s=10, alpha=0.5)
+    if border_score > 0.1:
+        border_indx.append(i)
+        border_name.append(cell_name)
 
-    # Add colorbar
-    cbar = fig.colorbar(im, ax=ax2)
-    cbar.set_label('Number of Spikes')
+    # # Add border score to the plot
+    # ax2.text(0.05, 0.95, f'Border Score: {border_score:.2f}', 
+    #         transform=ax2.transAxes, fontsize=10, 
+    #         verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.7))
 
-    ax2.set_title(f'Firing Map and Trajectory for {cell_name}')
-    ax2.set_xlabel('X Position')
-    ax2.set_ylabel('Y Position')
+    # im = ax2.imshow(firing_map_smooth, origin='lower', extent=[x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]],
+    #                 cmap='jet', interpolation='bilinear') # norm=LogNorm(vmin=1)
 
-    ax2.set_aspect('equal', adjustable='box')
+    # ax2.plot(x_pos, y_pos, color='gray', alpha=0.5, linewidth=0.5)
+    # # ax2.scatter(fire_xpos, fire_ypos, color='red', s=10, alpha=0.5)
 
-    # Adjust layout and display
-    plt.tight_layout()
-    plt.savefig(f"../output-{config.get('experiment_name')}//ratemaps/{cell_name}")
+    # # Add colorbar
+    # cbar = fig.colorbar(im, ax=ax2)
+    # cbar.set_label('Number of Spikes')
+
+    # ax2.set_title(f'Firing Map and Trajectory for {cell_name}')
+    # ax2.set_xlabel('X Position')
+    # ax2.set_ylabel('Y Position')
+
+    # ax2.set_aspect('equal', adjustable='box')
+
+    # # Adjust layout and display
+    # plt.tight_layout()
+    # plt.savefig(f"../output-{config.get('experiment_name')}/ratemaps/{cell_name}")
+
+print(border_name, border_indx)

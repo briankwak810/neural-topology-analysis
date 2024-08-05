@@ -31,6 +31,34 @@ def rat_trajectory():
 
     return time, x_center, y_center, head_dir, vel
 
+def calculate_border_score(firing_map, bin_size):
+    rows, cols = firing_map.shape
+    # Calculate cm_b (mean firing rate along walls)
+    wall_bins = np.concatenate([firing_map[0, :], firing_map[1, :], firing_map[2, :], firing_map[3, :], firing_map[-1, :], firing_map[-2, :], firing_map[-3, :], firing_map[-4, :], 
+                                firing_map[:, 0], firing_map[:, 1], firing_map[:, 2], firing_map[:, 3], firing_map[:, -4], firing_map[:, -1], firing_map[:, -2], firing_map[:, -3]])
+    cm_b = np.mean(wall_bins)
+    
+    # Calculate cm_i (mean firing rate in the middle)
+    inner_firing_map = firing_map[1:-1, 1:-1]
+    cm_i = np.mean(inner_firing_map)
+    
+    # Calculate dm (mean distance to nearest wall for each bin)
+    y, x = np.ogrid[:rows, :cols]
+    distance_to_wall = np.minimum(np.minimum(x, cols-1-x), np.minimum(y, rows-1-y))
+    dm = np.mean(distance_to_wall) * bin_size
+    
+    # Calculate dmt (distance to nearest wall for each bin, weighted by firing rate)
+    total_firing = np.sum(firing_map)
+    if total_firing == 0:
+        return 0  # Return 0 if there's no firing at all
+    
+    dmt = np.sum(distance_to_wall * firing_map) * bin_size / total_firing
+    
+    # Calculate border score
+    border_score = (cm_b - cm_i) / (cm_b + cm_i) * (1 - ((dmt - dm/2) / (dm/2)))
+    
+    return border_score
+
 # Function to write colored PLY file
 def write_colored_ply(filename, points, colors):
     with open(filename, 'w') as f:

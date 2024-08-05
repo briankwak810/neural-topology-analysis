@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from utils import *
 from downsampling import *
+from scipy.ndimage import gaussian_filter1d
 import os, yaml
 
 import cebra
@@ -24,6 +25,7 @@ maxdim = config['maxdim']
 seed = config['seed']
 importance_threshold = config['importance_threshold']
 discard_percent = config['discard_low_fire']
+usespikes = config['usespikes']
 
 ply_name = config['experiment_name']
 os.makedirs(f"../output-{ply_name}", exist_ok=True)
@@ -122,6 +124,23 @@ total_trace = np.zeros((len(traj_time), len(cell_numbers)))
 for i, cell in enumerate(cell_numbers):
     total_trace[:, i] = np.asarray(trace_per_cell[cell])
 
+if usespikes:
+    # Get spike data -> nearest interpolation
+    spiking_data = np.zeros((len(traj_time), len(cell_numbers)))
+
+    for i, cell in enumerate(cell_numbers):
+        for spike_time in spike_times[cell]:
+            nearest_index = find_nearest_time_index(spike_time, traj_time)
+            if nearest_index in moving_idx:
+                spiking_data[nearest_index, i] += 1
+
+    # Apply Gaussian filter
+    sigma_ms = 0.2  # sigma in seconds
+    sigma_samples = sigma_ms / (traj_time[1] - traj_time[0])  # convert sigma to samples
+    spiking_data = gaussian_filter1d(spiking_data, sigma=sigma_samples, axis=0)
+
+    total_spk = spiking_data
+
 if discard_percent != 0 and index is not None:
     # Not-Normalized total trace to discard lower percent
     nn_total_trace = np.zeros((len(traj_time), len(cell_numbers)))
@@ -131,17 +150,24 @@ if discard_percent != 0 and index is not None:
     # Get population
     higher_pop = get_higher_percent_indices(nn_total_trace, index, discard_percent)
     total_trace = total_trace[higher_pop, :]
+    total_spk = spiking_data[higher_pop, :]
 
-if index is not None:
-    neural = total_trace[:, index]
+if not usespikes:
+    if index is not None:
+        neural = total_trace[:, index]
+    else:
+        neural = total_trace[:, :]
 else:
-    neural = total_trace[:, :]
+    if index is not None:
+        neural = total_spk[:, index]
+    else:
+        neural = total_spk[:, :]
 
 ########################################################################
 ##########################  Hypothesis Setting #########################
 ## Use the auxilary variables that you want to use to train the model ##
 # Variables available are: traj_time, x_pos, y_pos, head_dir, velocity #
-## You can add more! --Default set to distance from boundary
+####### You can add more! --Default set to distance from boundary ######
 ########################################################################
 
 # normalize (for square)
@@ -153,8 +179,6 @@ min_y = np.min(y_pos)
 max_y = np.max(y_pos)
 
 continuous_index = np.column_stack((x_pos-min_x, max_x-x_pos, y_pos-min_y, max_y-y_pos))
-
-continuous_index = head_dir/180
 
 if discard_percent != 0:
     continuous_index = continuous_index[higher_pop, :]
