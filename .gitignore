@@ -1,0 +1,6 @@
+.vscode/
+data/*
+code/__pycache__
+myresults/
+
+!data/.gitkeep

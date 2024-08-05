@@ -1,0 +1,37 @@
+##### Analysis Mode Parameters #####
+
+experimental_analysis: True
+discard_low_fire: 0
+use_downsampling: True
+
+#####          Neural data        #####
+##### starts from under './data/' #####
+
+ethovision_files: 'mouse1 - base and opto/Raw data-Square50_Base1_PV5_6-Trial     1.xlsx'
+inscopix_files:
+  spk: 'mouse1 - base and opto/Square50_B1O1B2O2_PV5_6_Base1_deconv.xlsx'
+  trc: 'mouse1 - base and opto/Square50_B1O1B2O2_PV5_6_Base1.xlsx'
+mouse_num: 1
+experiment_name: "PV_1_Base"
+cell_index: [0, 3, 5, 6, 10, 13, 14, 17, 19, 20, 21, 23, 25, 38, 40, 43, 44, 47, 48, 54, 63, 64, 66, 71, 72] #None for all
+
+##### CEBRA paramters #####
+
+dims: [8, 16]
+max_iterations: 1000
+save_models: False
+model_architecture: 'offset10-model'
+batch_size: 512
+learning_rate: 0.0003
+temperature_mode: 'constant'
+temperature: 1.3
+distance: 'cosine'
+conditional: 'time_delta'
+time_offsets: 10
+hybrid: False
+
+##### Persistant Homology parameters #####
+
+maxdim: 1
+seed: 111
+importance_threshold: 0.3
