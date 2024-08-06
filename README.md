@@ -3,6 +3,21 @@
 A fast end-to-end data analysis pipeline that utilizes CEBRA, to analyze neural data and find underlying topologies.
 The purpose of this code is to easily use topological data analysis tools, along with data pre-/post-processing 
 
+### USAGE
+Put data under `data/` folder, change `config.yaml` file to change settings & directories. And then run
+
+```console
+python PV_trace_cebra.py
+```
+
+to run topological data analysis, and run
+
+```console
+python spikes.py
+```
+
+to get raw firing map images.
+
 ### Data
 
 Neural data(spike, trace) from **Inscopix** and behaviorial data from **Ethovision** have compatible data structures.
