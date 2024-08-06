@@ -31,6 +31,13 @@ ply_name = config['experiment_name']
 os.makedirs(f"../output-{ply_name}", exist_ok=True)
 os.makedirs(f"../models", exist_ok=True)
 
+# Create the output directory path
+output_dir = f"../output-{ply_name}"
+
+with open(f"{output_dir}/config.txt", 'w') as txt_file:
+    with open('../config.yaml', 'r') as yaml_file:
+        txt_file.write(yaml_file.read())
+
 print(f"Starting CEBRA analysis of experiment {ply_name}.")
 
 index = config['cell_index']
