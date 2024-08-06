@@ -4,6 +4,11 @@ A fast end-to-end data analysis pipeline that utilizes CEBRA, to analyze neural 
 The purpose of this code is to easily use topological data analysis tools, along with data pre-/post-processing 
 
 ### USAGE
+Download requirements with
+```console
+pip install -r requirements.txt
+```
+
 Put data under `data/` folder, change `config.yaml` file to change settings & directories. And then run
 
 ```console
